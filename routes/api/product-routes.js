@@ -7,7 +7,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 router.get('/', async (req, res) => {
   try {
     const productData = await Product.findAll({
-      include: [{ model: Category}, { model: Tag }],
+      include: [{ model: Category }, { model: Tag }],
     })
     res.status(200).json(productData)
   } catch (err) {
@@ -21,7 +21,7 @@ router.get('/:id', async (req, res) => {
   try {
     const productData = await Product.findByPk(req.params.id, {
       // Include these connected models in the json response
-      include: [{ model: Category}, { model: Tag }],
+      include: [{ model: Category }, { model: Tag }],
     })
 
     // If id is incorrect, give the 404 error status, plus the message
@@ -122,7 +122,7 @@ router.delete('/:id', async (req, res) => {
 
     // If product data doesn't exist, give 404 status, and json message
     if (!productData) {
-      res.status(404).json({ message: 'There are no products with that ID!'})
+      res.status(404).json({ message: 'There are no products with that ID!' })
       return
     }
 
