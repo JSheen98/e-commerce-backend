@@ -3,16 +3,38 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // The `/api/products` endpoint
 
-// get all products
-router.get('/', (req, res) => {
-  // find all products
-  // be sure to include its associated Category and Tag data
+// Get all the products, and include their associated Tag and Category data
+router.get('/', async (req, res) => {
+  try {
+    const productData = await Product.findAll({
+      include: [{ model: Category}, { model: Tag }],
+    })
+    res.status(200).json(productData)
+  } catch (err) {
+    // Any errors sent to catch will give 500 status and json error
+    res.status(500).json(err)
+  }
 });
 
-// get one product
-router.get('/:id', (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+// Get one product by id
+router.get('/:id', async (req, res) => {
+  try {
+    const productData = await Product.findByPk(req.params.id, {
+      // Include these connected models in the json response
+      include: [{ model: Category}, { model: Tag }],
+    })
+
+    // If id is incorrect, give the 404 error status, plus the message
+    if (!productData) {
+      res.status(404).json({ message: 'There are no products with that ID!' })
+      return
+    }
+
+    // If there is a valid id, give the 200 status, and the data in json form
+    res.status(200).json(productData)
+  } catch (err) {
+    res.status(500).json(err)
+  }
 });
 
 // create new product
@@ -89,8 +111,27 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+// Deletes a product with the given id
+router.delete('/:id', async (req, res) => {
+  try {
+    const productData = await Product.destroy({
+      where: {
+        id: req.params.id,
+      }
+    })
+
+    // If product data doesn't exist, give 404 status, and json message
+    if (!productData) {
+      res.status(404).json({ message: 'There are no products with that ID!'})
+      return
+    }
+
+    // If product does exist, give 200 status, and json data
+    res.status(200).json(productData)
+  } catch (err) {
+    // If any sort of error happens during try, go to catch and give 500 error status, and the error in json format
+    res.status(500).json(err)
+  }
 });
 
 module.exports = router;
